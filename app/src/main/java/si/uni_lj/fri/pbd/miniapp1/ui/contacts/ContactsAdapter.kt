@@ -24,6 +24,7 @@ class ContactsAdapter : RecyclerView.Adapter<ContactsAdapter.CardViewHolder>() {
 
         init {
             itemView.setOnClickListener { onItemClick() }
+            checkboxTV.setOnClickListener { onItemClick() }
         }
 
         private fun onItemClick() {
