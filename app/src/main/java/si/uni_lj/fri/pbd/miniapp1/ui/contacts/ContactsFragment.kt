@@ -7,8 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
+import si.uni_lj.fri.pbd.miniapp1.MainViewModel
 import si.uni_lj.fri.pbd.miniapp1.R
 import si.uni_lj.fri.pbd.miniapp1.databinding.FragmentContactsBinding
 import si.uni_lj.fri.pbd.miniapp1.utils.hasPermission
@@ -16,7 +16,7 @@ import si.uni_lj.fri.pbd.miniapp1.utils.requestPermissionWithRationale
 
 class ContactsFragment : Fragment() {
 
-    private lateinit var contactsViewModel: ContactsViewModel
+    private val model: MainViewModel by activityViewModels()
 
     private var _binding: FragmentContactsBinding? = null
     private val binding get() = _binding!!
@@ -29,8 +29,7 @@ class ContactsFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        contactsViewModel = ViewModelProvider(this).get(ContactsViewModel::class.java)
+    ): View {
         _binding = FragmentContactsBinding.inflate(inflater, container, false)
         init()
         return binding.root
@@ -43,13 +42,14 @@ class ContactsFragment : Fragment() {
         val adapter = ContactsAdapter()
         binding.list.adapter = adapter
 
-        contactsViewModel.contactsLiveData.observe(viewLifecycleOwner, Observer {
+        model.contactsLiveData.observe(viewLifecycleOwner, {
             binding.loading.visibility = View.GONE
             adapter.contacts = it
         })
 
         if (requireContext().hasPermission(Manifest.permission.READ_CONTACTS)) {
-            contactsViewModel.fetchContacts()
+
+            model.fetchContacts(requireContext().contentResolver)
             return
         }
 
@@ -69,7 +69,7 @@ class ContactsFragment : Fragment() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when {
             requestCode == CONTACTS_READ_REQ_CODE && grantResults[0] == PackageManager.PERMISSION_GRANTED
-            -> contactsViewModel.fetchContacts()
+            -> model.fetchContacts(requireContext().contentResolver)
         }
     }
 }

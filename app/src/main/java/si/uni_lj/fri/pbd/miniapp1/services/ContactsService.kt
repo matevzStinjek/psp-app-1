@@ -1,33 +1,15 @@
 package si.uni_lj.fri.pbd.miniapp1.services
 
-import android.app.Application
+import android.content.ContentResolver
 import android.database.Cursor
 import android.provider.ContactsContract
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import si.uni_lj.fri.pbd.miniapp1.ui.contacts.ContactDTO
 
-class ContactsService(private val mApplication: Application) {
+class ContactsService(private val resolver: ContentResolver) {
 
-    suspend fun fetchContacts(): ArrayList<ContactDTO> {
-        // use coroutines to fetch all data concurrently
-        val contactsListAsync = GlobalScope.async { getPhoneContacts() }
-        val contactNumbersAsync = GlobalScope.async { getContactNumbers() }
-        val contactEmailAsync = GlobalScope.async { getContactEmails() }
-
-        // await for coroutines to resolve
-        val contacts = contactsListAsync.await()
-        val contactNumbers = contactNumbersAsync.await()
-        val contactEmails = contactEmailAsync.await()
-
-        // compile them into a single structure
-        compileContacts(contacts, contactNumbers, contactEmails)
-        return contacts
-    }
-
-    private fun getPhoneContacts(): ArrayList<ContactDTO> {
+    fun getPhoneContacts(): ArrayList<ContactDTO> {
         val contactsList = ArrayList<ContactDTO>()
-        val contactsCursor = mApplication.contentResolver?.query(
+        val contactsCursor = resolver.query(
             ContactsContract.Contacts.CONTENT_URI, null, null, null,
             ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
         )
@@ -46,9 +28,9 @@ class ContactsService(private val mApplication: Application) {
         return contactsList
     }
 
-    private fun getContactNumbers(): HashMap<String, ArrayList<String>> {
+    fun getContactNumbers(): HashMap<String, ArrayList<String>> {
         val contactsNumberMap = HashMap<String, ArrayList<String>>()
-        val phoneCursor: Cursor? = mApplication.contentResolver.query(
+        val phoneCursor: Cursor? = resolver.query(
             ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null
         )
         if (phoneCursor != null && phoneCursor.count > 0) {
@@ -70,9 +52,9 @@ class ContactsService(private val mApplication: Application) {
         return contactsNumberMap
     }
 
-    private fun getContactEmails(): HashMap<String, ArrayList<String>> {
+    fun getContactEmails(): HashMap<String, ArrayList<String>> {
         val contactsEmailMap = HashMap<String, ArrayList<String>>()
-        val emailCursor = mApplication.contentResolver.query(
+        val emailCursor = resolver.query(
             ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, null, null, null
         )
         if (emailCursor != null && emailCursor.count > 0) {
@@ -92,20 +74,5 @@ class ContactsService(private val mApplication: Application) {
             emailCursor.close()
         }
         return contactsEmailMap
-    }
-
-    private fun compileContacts(
-        contacts: ArrayList<ContactDTO>,
-        contactNumbers: HashMap<String, ArrayList<String>>,
-        contactEmails: HashMap<String, ArrayList<String>>
-    ) {
-        contacts.forEach {
-            contactNumbers[it.id]?.let { numbers ->
-                it.numbers = numbers
-            }
-            contactEmails[it.id]?.let { emails ->
-                it.emails = emails
-            }
-        }
     }
 }

@@ -3,13 +3,10 @@ package si.uni_lj.fri.pbd.miniapp1.ui.message
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import si.uni_lj.fri.pbd.miniapp1.R
 import si.uni_lj.fri.pbd.miniapp1.databinding.FragmentMessageBinding
 
 class MessageFragment : Fragment() {

@@ -23,10 +23,13 @@ class ContactsAdapter : RecyclerView.Adapter<ContactsAdapter.CardViewHolder>() {
         var checkboxTV: CheckBox = itemView.findViewById(R.id.checkbox)
 
         init {
-            itemView.setOnClickListener {
-                checkboxTV.isChecked = !checkboxTV.isChecked
-                // TODO: sync with data
-            }
+            itemView.setOnClickListener { onItemClick() }
+        }
+
+        private fun onItemClick() {
+            val contact = contacts[adapterPosition]
+            contact.isSelected = !contact.isSelected
+            checkboxTV.isChecked = contact.isSelected
         }
     }
 
