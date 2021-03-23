@@ -48,7 +48,6 @@ class ContactsFragment : Fragment() {
         })
 
         if (requireContext().hasPermission(Manifest.permission.READ_CONTACTS)) {
-
             model.fetchContacts(requireContext().contentResolver)
             return
         }

@@ -39,6 +39,20 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun getSelectedUserEmails(): Array<String> {
+        val emails = contactsLiveData.value
+            ?.filter { it.isSelected && it.emails.isNotEmpty() }
+            ?.map { it.emails.first() }
+        return emails?.toTypedArray() ?: arrayOf()
+    }
+
+    fun getSelectedUserNumbers(): Array<String> {
+        val numbers = contactsLiveData.value
+            ?.filter { it.isSelected && it.numbers.isNotEmpty() }
+            ?.map { it.numbers.first() }
+        return numbers?.toTypedArray() ?: arrayOf()
+    }
+
     fun refetchContacts(resolver: ContentResolver) {
         areContactsFetched = false
         fetchContacts(resolver)

@@ -7,17 +7,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import com.google.android.material.snackbar.Snackbar
+import si.uni_lj.fri.pbd.miniapp1.MainViewModel
 import si.uni_lj.fri.pbd.miniapp1.databinding.FragmentMessageBinding
 
 class MessageFragment : Fragment() {
+
+    private val model: MainViewModel by activityViewModels()
+
+    private var _binding: FragmentMessageBinding? = null
+    private val binding get() = _binding!!
 
     companion object {
         private const val MESSAGE_SUBJECT = "PBD2021 Group Email"
         private const val MESSAGE_BODY = "Send from my Android mini app 1"
     }
-
-    private var _binding: FragmentMessageBinding? = null
-    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,10 +38,14 @@ class MessageFragment : Fragment() {
     }
 
     private fun startEmailIntent() {
-        val mockEmails = arrayOf("asd@gmail.com", "dnf@gmail.com") // TODO: remove
+        val emails = model.getSelectedUserEmails()
+        if (emails.isEmpty()) {
+            showToast( "None of the selected users have a set email")
+            return
+        }
         val intent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:")
-            putExtra(Intent.EXTRA_EMAIL, mockEmails)
+            putExtra(Intent.EXTRA_EMAIL, emails)
             putExtra(Intent.EXTRA_SUBJECT, MESSAGE_SUBJECT)
             putExtra(Intent.EXTRA_TEXT, MESSAGE_BODY)
         }
@@ -44,19 +53,20 @@ class MessageFragment : Fragment() {
     }
 
     private fun startMmsIntent() {
-        val mockNumbers = arrayOf("040123123", "050123123") // TODO: remove
-//        val intent = Intent(Intent.ACTION_SENDTO).apply {
-//            val numbersStr = mockNumbers.joinToString(";")
-//            data = Uri.parse("mmsto:$numbersStr")
-//            putExtra("sms_body", MESSAGE_BODY)
-//            type = "vnd.android-dir/mms-sms"
-//        }
-//        startActivity(intent)
+        val numbers = model.getSelectedUserNumbers()
+        if (numbers.isEmpty()) {
+            showToast( "None of the selected users have a set phone number")
+            return
+        }
         val intent = Intent(Intent.ACTION_SENDTO).apply {
-            data = Uri.parse("mmsto:")
+            val numbersStr = numbers.joinToString(";")
+            data = Uri.parse("mmsto:$numbersStr")
             putExtra("sms_body", MESSAGE_BODY)
         }
         startActivity(intent)
-        TODO("IDK make it work")
+    }
+
+    private fun showToast(text: String) {
+        Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG).show()
     }
 }
