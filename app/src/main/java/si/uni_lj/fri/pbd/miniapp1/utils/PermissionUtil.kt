@@ -6,8 +6,6 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 
-// source https://github.com/kednaik/Coroutines-Contact-Fetching/blob/master/app/src/main/java/com/kedar/coroutinescontactsfetching/Utils.kt
-
 fun Context.hasPermission(permission: String): Boolean {
     return ActivityCompat.checkSelfPermission(
         this,

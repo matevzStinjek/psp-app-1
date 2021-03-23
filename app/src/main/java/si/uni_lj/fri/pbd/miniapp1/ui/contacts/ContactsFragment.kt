@@ -2,9 +2,7 @@ package si.uni_lj.fri.pbd.miniapp1.ui.contacts
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +11,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import si.uni_lj.fri.pbd.miniapp1.R
 import si.uni_lj.fri.pbd.miniapp1.databinding.FragmentContactsBinding
-import si.uni_lj.fri.pbd.miniapp1.databinding.FragmentMessageBinding
 import si.uni_lj.fri.pbd.miniapp1.utils.hasPermission
 import si.uni_lj.fri.pbd.miniapp1.utils.requestPermissionWithRationale
 

@@ -1,7 +1,5 @@
 package si.uni_lj.fri.pbd.miniapp1.ui.contacts
 
-
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
