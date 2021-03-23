@@ -6,6 +6,13 @@
     <string name="action_settings">Settings</string>
 
     <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_contacts">Contacts</string>
+    <string name="saved_image_key">saved_avatar_image</string>
+    <string name="pbd2021">PBD2021</string>
+    <string name="app_title">Android Mini App 1</string>
+    <string name="landing_image">Landing image</string>
+    <string name="menu_message">Message</string>
+    <string name="share">Share</string>
+    <string name="group_email_button">Send group email</string>
+    <string name="group_mms_button">Send group MMS</string>
 </resources>

@@ -2,6 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="si.uni_lj.fri.pbd.miniapp1">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -15,14 +21,16 @@
             android:theme="@style/Theme.MiniApp1.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SENDTO" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="mailto" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
     </application>
-
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false" />
-
 </manifest>
