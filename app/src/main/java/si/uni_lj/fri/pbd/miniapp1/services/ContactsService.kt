@@ -1,9 +1,11 @@
 package si.uni_lj.fri.pbd.miniapp1.services
 
+import android.content.ContentProviderOperation
 import android.content.ContentResolver
 import android.database.Cursor
 import android.provider.ContactsContract
 import si.uni_lj.fri.pbd.miniapp1.ui.contacts.ContactDTO
+import si.uni_lj.fri.pbd.miniapp1.ui.contacts.NewContactDTO
 
 // inspired by https://github.com/kednaik/Coroutines-Contact-Fetching/blob/master/app/src/main/java/com/kedar/coroutinescontactsfetching/ContactsViewModel.kt
 
@@ -82,5 +84,44 @@ class ContactsService(private val resolver: ContentResolver) {
         }
         emailCursor.close()
         return contactsEmailMap
+    }
+
+    fun insertContact(contact: NewContactDTO) {
+        val (name, email, number) = contact
+        val operations: ArrayList<ContentProviderOperation> = arrayListOf()
+
+        val initialOp = ContentProviderOperation.newInsert(
+            ContactsContract.RawContacts.CONTENT_URI)
+            .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+            .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+            .build()
+        operations.add(initialOp)
+
+        val op2 = ContentProviderOperation.newInsert(
+            ContactsContract.Data.CONTENT_URI)
+            .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+            .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+            .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, name)
+            .build()
+        operations.add(op2)
+
+        val numberOp = ContentProviderOperation.
+        newInsert(ContactsContract.Data.CONTENT_URI)
+            .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+            .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+            .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, number)
+            .withValue(ContactsContract.CommonDataKinds.Phone.TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
+            .build()
+        operations.add(numberOp)
+
+        val emailOp = ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+            .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+            .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+            .withValue(ContactsContract.CommonDataKinds.Email.DATA, email)
+            .withValue(ContactsContract.CommonDataKinds.Email.TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK)
+            .build()
+        operations.add(emailOp)
+
+        resolver.applyBatch(ContactsContract.AUTHORITY, operations)
     }
 }

@@ -15,6 +15,12 @@
     <string name="share">Share</string>
     <string name="group_email_button">Send group email</string>
     <string name="group_mms_button">Send group MMS</string>
-    <string name="contact_permission_rationale">We need to access your contacts for this feature to work</string>
+    <string name="contact_read_permission_rationale">We need to access your contacts for this feature to work</string>
+    <string name="contact_write_permission_rationale">"We need to contacts write permissions for this feature to work"</string>
     <string name="contact_permission_title">"Sorry to bother you"</string>
+    <string name="floating_button_content_description">Add a new contact</string>
+    <string name="hint_name">Name</string>
+    <string name="hint_number">Number</string>
+    <string name="hint_email">Email</string>
+    <string name="button_add">Add</string>
 </resources>
