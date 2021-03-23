@@ -1,25 +1,31 @@
 package si.uni_lj.fri.pbd.miniapp1.ui.contacts
 
-import android.database.Cursor
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
-import android.provider.ContactsContract
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.Loader
 import si.uni_lj.fri.pbd.miniapp1.R
+import si.uni_lj.fri.pbd.miniapp1.databinding.FragmentContactsBinding
+import si.uni_lj.fri.pbd.miniapp1.databinding.FragmentMessageBinding
+import si.uni_lj.fri.pbd.miniapp1.utils.hasPermission
+import si.uni_lj.fri.pbd.miniapp1.utils.requestPermissionWithRationale
 
-class ContactsFragment: Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
+class ContactsFragment : Fragment() {
 
     private lateinit var contactsViewModel: ContactsViewModel
 
+    private var _binding: FragmentContactsBinding? = null
+    private val binding get() = _binding!!
+
     companion object {
-        private val FROM_COLUMNS: Array<String> = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
+        private const val CONTACTS_READ_REQ_CODE = 100
     }
 
     override fun onCreateView(
@@ -27,26 +33,46 @@ class ContactsFragment: Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        contactsViewModel =
-            ViewModelProvider(this).get(ContactsViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_contacts, container, false)
-        val textView: TextView = root.findViewById(R.id.text_contacts)
-        contactsViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
+        contactsViewModel = ViewModelProvider(this).get(ContactsViewModel::class.java)
+        _binding = FragmentContactsBinding.inflate(inflater, container, false)
+        init()
+        return binding.root
+    }
+
+    private fun init() {
+        // show loading spinner
+        binding.loading.visibility = View.VISIBLE
+
+        val adapter = ContactsAdapter()
+        binding.list.adapter = adapter
+
+        contactsViewModel.contactsLiveData.observe(viewLifecycleOwner, Observer {
+            binding.loading.visibility = View.GONE
+            adapter.contacts = it
         })
-        return root
+
+        if (requireContext().hasPermission(Manifest.permission.READ_CONTACTS)) {
+            contactsViewModel.fetchContacts()
+            return
+        }
+
+        requireActivity().requestPermissionWithRationale(
+            Manifest.permission.READ_CONTACTS,
+            CONTACTS_READ_REQ_CODE,
+            getString(R.string.contact_permission_rationale),
+            getString(R.string.contact_permission_title),
+        )
     }
 
-    override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
-        TODO("Not yet implemented")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when {
+            requestCode == CONTACTS_READ_REQ_CODE && grantResults[0] == PackageManager.PERMISSION_GRANTED
+            -> contactsViewModel.fetchContacts()
+        }
     }
-
-    override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onLoaderReset(loader: Loader<Cursor>) {
-        TODO("Not yet implemented")
-    }
-
 }
