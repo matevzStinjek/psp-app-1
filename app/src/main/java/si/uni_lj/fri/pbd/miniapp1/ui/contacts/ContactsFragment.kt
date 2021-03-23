@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import si.uni_lj.fri.pbd.miniapp1.MainViewModel
 import si.uni_lj.fri.pbd.miniapp1.R
@@ -79,8 +80,10 @@ class ContactsFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when {
-            requestCode == CREATE_CONTACT_ACTIVITY_CODE && resultCode == AppCompatActivity.RESULT_OK
-            -> model.refetchContacts(requireContext().contentResolver)
+            requestCode == CREATE_CONTACT_ACTIVITY_CODE && resultCode == AppCompatActivity.RESULT_OK -> {
+                model.refetchContacts(requireContext().contentResolver)
+                view?.findNavController()?.navigate(R.id.nav_home)
+            }
         }
     }
 
