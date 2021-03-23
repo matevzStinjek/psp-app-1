@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.Menu
@@ -21,8 +20,12 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import java.io.ByteArrayOutputStream
-import java.util.*
+import androidx.lifecycle.coroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import si.uni_lj.fri.pbd.miniapp1.utils.deserialize
+import si.uni_lj.fri.pbd.miniapp1.utils.serialize
 
 class MainActivity : AppCompatActivity() {
 
@@ -51,7 +54,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        setAvatarIfExists()
+        lifecycle.coroutineScope.launch {
+            async { setAvatarIfExists() }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -81,7 +86,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         when {
             requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK -> onCameraActivityResult(data)
         }
@@ -95,7 +99,7 @@ class MainActivity : AppCompatActivity() {
         // save the image
         val sharedPref = getPreferences(Context.MODE_PRIVATE) ?: return
         with(sharedPref.edit()) {
-            val encodedImage = bitmapToString(imageBitmap)
+            val encodedImage = serialize(imageBitmap)
             putString(getString(R.string.saved_image_key), encodedImage)
             apply()
         }
@@ -106,20 +110,27 @@ class MainActivity : AppCompatActivity() {
         imageView.setImageBitmap(imageBitmap)
     }
 
-    private fun setAvatarIfExists() {
+    private suspend fun setAvatarIfExists() {
         val sharedPref = getPreferences(Context.MODE_PRIVATE) ?: return
         val encodedImage = sharedPref.getString(getString(R.string.saved_image_key), null) ?: return
+        val imageBitmap = deserialize(encodedImage)
 
-        val imageBytes = Base64.getDecoder().decode(encodedImage.toByteArray())
-        val imageBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-//        setImageAsAvatar(imageBitmap) // TODO: fix!!
+        // please ignore this abomination, didn't have time to debug why it doesn't find the imageView --> hackerman 😎
+        attemptSetImageAsAvatar(imageBitmap)
     }
 
-    private fun bitmapToString(bitmap: Bitmap): String {
-        val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-        val b = stream.toByteArray()
-        return Base64.getEncoder().encodeToString(b)
+    private suspend fun attemptSetImageAsAvatar(imageBitmap: Bitmap) {
+        var attempts = 0
+        var isSet = false
+        while (!isSet && attempts < 3) {
+            try {
+                setImageAsAvatar(imageBitmap)
+                isSet = true
+            } catch (e: Exception) {
+                delay(500)
+                attempts++
+            }
+        }
     }
 
     private fun showToast(text: String) {
