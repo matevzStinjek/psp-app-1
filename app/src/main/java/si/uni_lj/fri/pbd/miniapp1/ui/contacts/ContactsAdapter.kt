@@ -28,7 +28,12 @@ class ContactsAdapter : RecyclerView.Adapter<ContactsAdapter.CardViewHolder>() {
 
         private fun onItemClick() {
             val contact = contacts[adapterPosition]
-            contact.isSelected = !contact.isSelected
+            contact.toggleIsSelected()
+            checkboxTV.isChecked = contact.isSelected
+        }
+
+        fun bind(contact: ContactDTO) {
+            nameTV.text = contact.name
             checkboxTV.isChecked = contact.isSelected
         }
     }
@@ -39,8 +44,6 @@ class ContactsAdapter : RecyclerView.Adapter<ContactsAdapter.CardViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
-        val contact = contacts[position]
-        holder.nameTV.text = contact.name
-        holder.checkboxTV.isChecked = contact.isSelected
+        holder.bind(contacts[position])
     }
 }
